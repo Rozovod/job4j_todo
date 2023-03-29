@@ -29,32 +29,45 @@ public class TaskRepository {
         return task;
     }
 
-    public void update(Task task) {
+    public boolean update(Task task) {
+        boolean result = false;
         Session session = sf.openSession();
         try {
             session.beginTransaction();
-            session.update(task);
+            int affectedRows = session.createQuery(
+                            "UPDATE Task SET title = :tTitle, description = :tDescription," +
+                                    "done = :tDone WHERE id = :tId")
+                    .setParameter("tTitle", task.getTitle())
+                    .setParameter("tDescription", task.getDescription())
+                    .setParameter("tDone", task.isDone())
+                    .setParameter("tId", task.getId())
+                    .executeUpdate();
             session.getTransaction().commit();
+            result = affectedRows > 0;
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
+        return result;
     }
 
-    public void delete(int id) {
+    public boolean delete(int id) {
+        boolean result = false;
         Session session = sf.openSession();
         try {
             session.beginTransaction();
-            session.createQuery("DELETE Task WHERE id = :tId")
+            int affectedRows = session.createQuery("DELETE Task WHERE id = :tId")
                     .setParameter("tId", id)
                     .executeUpdate();
             session.getTransaction().commit();
+            result = affectedRows > 0;
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
+        return result;
     }
 
     public Optional<Task> findById(int id) {
@@ -89,12 +102,13 @@ public class TaskRepository {
         return tasks;
     }
 
-    public Collection<Task> findAllCompleted() {
+    public Collection<Task> findAllByState(boolean state) {
         Session session = sf.openSession();
-        Collection<Task> tasksDone = new ArrayList<>();
+        Collection<Task> result = new ArrayList<>();
         try {
             session.beginTransaction();
-            tasksDone = session.createQuery("from Task as t where t.done = true", Task.class)
+            result = session.createQuery("from Task as t where t.done = :tState", Task.class)
+                    .setParameter("tState", state)
                     .getResultList();
             session.getTransaction().commit();
         } catch (Exception e) {
@@ -102,38 +116,25 @@ public class TaskRepository {
         } finally {
             session.close();
         }
-        return tasksDone;
+        return result;
     }
 
-    public Collection<Task> findAllNew() {
-        Session session = sf.openSession();
-        Collection<Task> tasksNew = new ArrayList<>();
-        try {
-            session.beginTransaction();
-            tasksNew = session.createQuery("from Task as t where t.done = false", Task.class)
-                    .getResultList();
-            session.getTransaction().commit();
-        } catch (Exception e) {
-            session.getTransaction().rollback();
-        } finally {
-            session.close();
-        }
-        return tasksNew;
-    }
-
-    public void updateStates(Task task) {
+    public boolean updateStates(int id) {
+        boolean result = false;
         Session session = sf.openSession();
         try {
             session.beginTransaction();
-            session.createQuery("UPDATE Task SET done = :tDone where id = :tId")
+            int affectedRows = session.createQuery("UPDATE Task SET done = :tDone where id = :tId")
                     .setParameter("tDone", true)
-                    .setParameter("tId", task.getId())
+                    .setParameter("tId", id)
                     .executeUpdate();
             session.getTransaction().commit();
+            result = affectedRows > 0;
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
             session.close();
         }
+        return result;
     }
 }

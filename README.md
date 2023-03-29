@@ -11,13 +11,13 @@
 ## Используемые технологии
 
 + Java 17
-+ Spring boot
-+ Lombok
-+ Thymeleaf
-+ Bootstrap
-+ Hibernate
-+ Liquibase
-+ PostgreSql
++ Spring boot 2.7.6
++ Lombok 1.18.22
++ Thymeleaf 3.0.15
++ Bootstrap 4.3.1
++ Hibernate 5.6.11.Final
++ Liquibase 4.15
++ PostgreSql 42.2.9
 
 ## Требования к окружению
 
@@ -34,7 +34,7 @@
 ``` 
 mvn spring-boot:run -Pproduction
 ```
-+ Перейти в браузере по [ссылке](http://localhost:8080/)
++ Перейти в браузере по [ссылке](http://localhost:8080/task)
 
 ## Взаимодействие с приложением
 

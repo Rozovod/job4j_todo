@@ -17,12 +17,12 @@ public class TaskService {
         return taskRepository.create(task);
     }
 
-    public void update(Task task) {
-        taskRepository.update(task);
+    public boolean update(Task task) {
+        return taskRepository.update(task);
     }
 
-    public void delete(int id) {
-        taskRepository.delete(id);
+    public boolean delete(int id) {
+        return taskRepository.delete(id);
     }
 
     public Optional<Task> findById(int id) {
@@ -33,15 +33,11 @@ public class TaskService {
         return taskRepository.findAll();
     }
 
-    public Collection<Task> findAllCompleted() {
-        return taskRepository.findAllCompleted();
+    public Collection<Task> findAllByState(boolean state) {
+        return taskRepository.findAllByState(state);
     }
 
-    public Collection<Task> findAllNew() {
-        return taskRepository.findAllNew();
-    }
-
-    public void updateStates(Task task) {
-        taskRepository.updateStates(task);
+    public boolean updateStates(int id) {
+        return taskRepository.updateStates(id);
     }
 }

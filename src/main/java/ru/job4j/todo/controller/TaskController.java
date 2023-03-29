@@ -9,6 +9,7 @@ import ru.job4j.todo.service.TaskService;
 
 @Controller
 @AllArgsConstructor
+@RequestMapping("/tasks")
 public class TaskController {
     private final TaskService taskService;
 
@@ -20,13 +21,13 @@ public class TaskController {
 
     @GetMapping("/completed")
     public String getCompleted(Model model) {
-        model.addAttribute("tasks", taskService.findAllCompleted());
+        model.addAttribute("tasks", taskService.findAllByState(true));
         return "tasks/list";
     }
 
     @GetMapping("/new")
     public String getNew(Model model) {
-        model.addAttribute("tasks", taskService.findAllNew());
+        model.addAttribute("tasks", taskService.findAllByState(false));
         return "tasks/list";
     }
 
@@ -72,26 +73,33 @@ public class TaskController {
 
     @PostMapping("/update")
     public String update(@ModelAttribute Task task, Model model) {
-        taskService.update(task);
+        var isUpdated = taskService.update(task);
+        if (!isUpdated) {
+            model.addAttribute("message", "Ошибка. Задание не обновлено");
+            return "errors/404";
+        }
         model.addAttribute("message", "Задание обновлено успешно");
         return "tasks/success";
     }
 
     @GetMapping("/delete/{id}")
     public String delete(Model model, @PathVariable int id) {
-        taskService.delete(id);
+        var isDeleted = taskService.delete(id);
+        if (!isDeleted) {
+            model.addAttribute("message", "Ошибка. Задание не удалено");
+            return "errors/404";
+        }
         model.addAttribute("message", "Задание удалено успешно");
         return "tasks/success";
     }
 
     @GetMapping("/state/{id}")
     public String updateState(Model model, @PathVariable int id) {
-        var taskOptional = taskService.findById(id);
-        if (taskOptional.isEmpty()) {
-            model.addAttribute("message", "Задание не найдено");
+        var isUpdatedState = taskService.updateStates(id);
+        if (!isUpdatedState) {
+            model.addAttribute("message", "Ошибка. Статус задания не обновлен");
             return "errors/404";
         }
-        taskService.updateStates(taskOptional.get());
         model.addAttribute("message", "Статус задания изменен на Выполнено");
         return "tasks/success";
     }
