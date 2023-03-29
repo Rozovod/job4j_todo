@@ -35,8 +35,8 @@ public class TaskRepository {
         try {
             session.beginTransaction();
             int affectedRows = session.createQuery(
-                            "UPDATE Task SET title = :tTitle, description = :tDescription," +
-                                    "done = :tDone WHERE id = :tId")
+                            "UPDATE Task SET title = :tTitle, description = :tDescription,"
+                                    + "done = :tDone WHERE id = :tId")
                     .setParameter("tTitle", task.getTitle())
                     .setParameter("tDescription", task.getDescription())
                     .setParameter("tDone", task.isDone())
