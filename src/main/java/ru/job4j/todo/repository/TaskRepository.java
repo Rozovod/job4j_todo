@@ -34,16 +34,8 @@ public class TaskRepository {
         Session session = sf.openSession();
         try {
             session.beginTransaction();
-            int affectedRows = session.createQuery(
-                            "UPDATE Task SET title = :tTitle, description = :tDescription,"
-                                    + "done = :tDone WHERE id = :tId")
-                    .setParameter("tTitle", task.getTitle())
-                    .setParameter("tDescription", task.getDescription())
-                    .setParameter("tDone", task.isDone())
-                    .setParameter("tId", task.getId())
-                    .executeUpdate();
-            session.getTransaction().commit();
-            result = affectedRows > 0;
+            session.update(task);
+            result = true;
         } catch (Exception e) {
             session.getTransaction().rollback();
         } finally {
