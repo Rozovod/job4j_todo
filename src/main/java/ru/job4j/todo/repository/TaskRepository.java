@@ -35,6 +35,7 @@ public class TaskRepository {
         try {
             session.beginTransaction();
             session.update(task);
+            session.getTransaction().commit();
             result = true;
         } catch (Exception e) {
             session.getTransaction().rollback();
