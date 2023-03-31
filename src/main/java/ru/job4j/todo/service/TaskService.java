@@ -13,8 +13,8 @@ import java.util.Optional;
 public class TaskService {
     private final TaskRepository taskRepository;
 
-    public Task create(Task task) {
-        return taskRepository.create(task);
+    public void create(Task task) {
+        taskRepository.create(task);
     }
 
     public boolean update(Task task) {
