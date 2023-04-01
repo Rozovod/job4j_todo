@@ -48,10 +48,6 @@ public class CrudRepository {
         return tx(command);
     }
 
-    public <T> Optional<T> optional(Function<Session, Optional<T>> command) {
-        return tx(command);
-    }
-
     public <T> Collection<T> query(String query, Class<T> cl) {
         Function<Session, Collection<T>> command = session -> session
                 .createQuery(query, cl)
