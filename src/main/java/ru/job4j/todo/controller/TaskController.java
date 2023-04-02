@@ -5,6 +5,7 @@ import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.TaskService;
 
 @Controller
@@ -38,8 +39,9 @@ public class TaskController {
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute Task task, Model model) {
+    public String create(@ModelAttribute Task task, @SessionAttribute User user, Model model) {
         try {
+            task.setUser(user);
             taskService.create(task);
             model.addAttribute("message", "Задание добавлено успешно!");
             return "tasks/success";
