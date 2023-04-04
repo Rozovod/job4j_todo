@@ -78,7 +78,8 @@ public class TaskController {
     }
 
     @PostMapping("/update")
-    public String update(@ModelAttribute Task task, Model model) {
+    public String update(@ModelAttribute Task task, @SessionAttribute User user, Model model) {
+        task.setUser(user);
         var isUpdated = taskService.update(task);
         if (!isUpdated) {
             model.addAttribute("message", "Ошибка. Задание не обновлено");
