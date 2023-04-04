@@ -62,6 +62,10 @@
                 <span class="form-control" id="created" th:text="${#temporals.format(task.created, 'dd-MM-yyyy HH:mm')}"></span>
             </div>
             <div class="mb-3">
+                <label for="priority" class="form-label"><b>Приоритет</b></label>
+                <span class="form-control" id="priority" th:text="${task.priority.name}"></span>
+            </div>
+            <div class="mb-3">
                 <label for="state" class="form-label"><b>Статус</b></label>
                 <span class="form-control" id="state" th:text="${task.done} == true ? 'Выполнено' : 'Новое'"></span>
             </div>

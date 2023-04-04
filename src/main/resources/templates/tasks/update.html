@@ -59,6 +59,13 @@
                 <textarea class="form-control" id="description" name="description" rows="10" placeholder="Здесь опишите задание более подробно" th:field="*{description}"></textarea>
             </div>
             <div class="mb-3">
+                <label for="priority"><b>Приоритет</b></label>
+                <select class="form-control" id="priority" name="priorityId">
+                    <option th:each="priority : ${priorities}" th:value="${priority.id}" th:text="${priority.name}"
+                            th:field="*{priority.id}" th:selected="${priority.id==task.priority.id}"></option>
+                </select>
+            </div>
+            <div class="mb-3">
                 <label for="state">Статус</label>
                 <select class="form-control" id="state" th:field="*{done}">
                     <option value="false">Новое</option>
