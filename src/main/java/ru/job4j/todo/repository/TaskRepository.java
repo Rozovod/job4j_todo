@@ -30,17 +30,20 @@ public class TaskRepository {
 
     public Optional<Task> findById(int id) {
         return crudRepository.optional(
-                "from Task t JOIN FETCH t.priority where t.id = :tId", Task.class, Map.of("tId", id));
+                "from Task t JOIN FETCH t.priority JOIN FETCH t.categories where t.id = :tId",
+                Task.class, Map.of("tId", id));
     }
 
     public Collection<Task> findAll() {
-        return crudRepository.query("from Task t JOIN FETCH t.priority", Task.class);
+        return crudRepository.query("SELECT DISTINCT t from Task t JOIN FETCH t.priority "
+                + "JOIN FETCH t.categories  ORDER BY t.id ASC", Task.class);
     }
 
     public Collection<Task> findAllByState(boolean state) {
         return crudRepository.query(
-                "from Task as t JOIN FETCH t.priority where t.done = :tState", Task.class,
-                Map.of("tState", state)
+                "SELECT DISTINCT t from Task as t JOIN FETCH t.priority "
+                        + "JOIN FETCH t.categories where t.done = :tState ORDER BY t.id ASC",
+                Task.class, Map.of("tState", state)
         );
     }
 

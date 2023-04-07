@@ -4,10 +4,14 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import ru.job4j.todo.model.Category;
 import ru.job4j.todo.model.Task;
 import ru.job4j.todo.model.User;
+import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
+
+import java.util.List;
 
 @Controller
 @AllArgsConstructor
@@ -15,6 +19,7 @@ import ru.job4j.todo.service.TaskService;
 public class TaskController {
     private final TaskService taskService;
     private final PriorityService priorityService;
+    private final CategoryService categoryService;
 
     @GetMapping({"/", "/index"})
     public String getAll(Model model) {
@@ -38,13 +43,17 @@ public class TaskController {
     public String getCreationPage(Model model) {
         model.addAttribute("task", new Task());
         model.addAttribute("priorities", priorityService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         return "tasks/create";
     }
 
     @PostMapping("/create")
-    public String create(@ModelAttribute Task task, @SessionAttribute User user, Model model) {
+    public String create(@ModelAttribute Task task, @SessionAttribute User user,
+                         @RequestParam("categoriesId") List<Integer> categoriesId, Model model) {
         try {
+            List<Category> categories = (List<Category>) categoryService.findByIdList(categoriesId);
             task.setUser(user);
+            task.setCategories(categories);
             taskService.create(task);
             model.addAttribute("message", "Задание добавлено успешно!");
             return "tasks/success";
@@ -73,13 +82,17 @@ public class TaskController {
             return "errors/404";
         }
         model.addAttribute("priorities", priorityService.findAll());
+        model.addAttribute("categories", categoryService.findAll());
         model.addAttribute("task", taskOptional.get());
         return "tasks/update";
     }
 
     @PostMapping("/update")
-    public String update(@ModelAttribute Task task, @SessionAttribute User user, Model model) {
+    public String update(@ModelAttribute Task task, @SessionAttribute User user,
+                         @RequestParam("categoriesId") List<Integer> categoriesId, Model model) {
+        List<Category> categories = (List<Category>) categoryService.findByIdList(categoriesId);
         task.setUser(user);
+        task.setCategories(categories);
         var isUpdated = taskService.update(task);
         if (!isUpdated) {
             model.addAttribute("message", "Ошибка. Задание не обновлено");
