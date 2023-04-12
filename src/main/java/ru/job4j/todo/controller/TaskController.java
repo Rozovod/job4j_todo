@@ -11,7 +11,9 @@ import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
 
+import java.time.ZoneId;
 import java.util.List;
+import java.util.TimeZone;
 
 @Controller
 @AllArgsConstructor
@@ -22,20 +24,26 @@ public class TaskController {
     private final CategoryService categoryService;
 
     @GetMapping({"/", "/index"})
-    public String getAll(Model model) {
-        model.addAttribute("tasks", taskService.findAll());
+    public String getAll(Model model, @SessionAttribute User user) {
+        var tasks = taskService.findAll();
+        tasks.forEach(t -> setTimeZone(t, user));
+        model.addAttribute("tasks", tasks);
         return "tasks/list";
     }
 
     @GetMapping("/completed")
-    public String getCompleted(Model model) {
-        model.addAttribute("tasks", taskService.findAllByState(true));
+    public String getCompleted(Model model, @SessionAttribute User user) {
+        var completedTasks = taskService.findAllByState(true);
+        completedTasks.forEach(t -> setTimeZone(t, user));
+        model.addAttribute("tasks", completedTasks);
         return "tasks/list";
     }
 
     @GetMapping("/new")
-    public String getNew(Model model) {
-        model.addAttribute("tasks", taskService.findAllByState(false));
+    public String getNew(Model model, @SessionAttribute User user) {
+        var newTasks = taskService.findAllByState(false);
+        newTasks.forEach(t -> setTimeZone(t, user));
+        model.addAttribute("tasks", newTasks);
         return "tasks/list";
     }
 
@@ -64,12 +72,13 @@ public class TaskController {
     }
 
     @GetMapping("/{id}")
-    public String getById(Model model, @PathVariable int id) {
+    public String getById(Model model, @PathVariable int id, @SessionAttribute User user) {
         var taskOptional = taskService.findById(id);
         if (taskOptional.isEmpty()) {
             model.addAttribute("message", "Задание не найдено");
             return "errors/404";
         }
+        setTimeZone(taskOptional.get(), user);
         model.addAttribute("task", taskOptional.get());
         return "tasks/one";
     }
@@ -122,5 +131,15 @@ public class TaskController {
         }
         model.addAttribute("message", "Статус задания изменен на Выполнено");
         return "tasks/success";
+    }
+
+    private static void setTimeZone(Task task, User user) {
+        var defTz = TimeZone.getDefault().toZoneId();
+        var userTimeZone = ZoneId.of(user.getTimezone());
+        var dateTime = task.getCreated()
+                .atZone(defTz)
+                .withZoneSameInstant(userTimeZone)
+                .toLocalDateTime();
+        task.setCreated(dateTime);
     }
 }
