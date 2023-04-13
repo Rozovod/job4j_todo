@@ -10,10 +10,9 @@ import ru.job4j.todo.model.User;
 import ru.job4j.todo.service.CategoryService;
 import ru.job4j.todo.service.PriorityService;
 import ru.job4j.todo.service.TaskService;
+import ru.job4j.todo.util.TimezoneConverter;
 
-import java.time.ZoneId;
 import java.util.List;
-import java.util.TimeZone;
 
 @Controller
 @AllArgsConstructor
@@ -25,24 +24,24 @@ public class TaskController {
 
     @GetMapping({"/", "/index"})
     public String getAll(Model model, @SessionAttribute User user) {
-        var tasks = taskService.findAll();
-        tasks.forEach(t -> setTimeZone(t, user));
+        var tasks = taskService.findAllForUser(user);
+        tasks.forEach(t -> TimezoneConverter.setTimeZone(t, user));
         model.addAttribute("tasks", tasks);
         return "tasks/list";
     }
 
     @GetMapping("/completed")
     public String getCompleted(Model model, @SessionAttribute User user) {
-        var completedTasks = taskService.findAllByState(true);
-        completedTasks.forEach(t -> setTimeZone(t, user));
+        var completedTasks = taskService.findAllByStateForUser(true, user);
+        completedTasks.forEach(t -> TimezoneConverter.setTimeZone(t, user));
         model.addAttribute("tasks", completedTasks);
         return "tasks/list";
     }
 
     @GetMapping("/new")
     public String getNew(Model model, @SessionAttribute User user) {
-        var newTasks = taskService.findAllByState(false);
-        newTasks.forEach(t -> setTimeZone(t, user));
+        var newTasks = taskService.findAllByStateForUser(false, user);
+        newTasks.forEach(t -> TimezoneConverter.setTimeZone(t, user));
         model.addAttribute("tasks", newTasks);
         return "tasks/list";
     }
@@ -78,7 +77,7 @@ public class TaskController {
             model.addAttribute("message", "Задание не найдено");
             return "errors/404";
         }
-        setTimeZone(taskOptional.get(), user);
+        TimezoneConverter.setTimeZone(taskOptional.get(), user);
         model.addAttribute("task", taskOptional.get());
         return "tasks/one";
     }
@@ -131,15 +130,5 @@ public class TaskController {
         }
         model.addAttribute("message", "Статус задания изменен на Выполнено");
         return "tasks/success";
-    }
-
-    private static void setTimeZone(Task task, User user) {
-        var defTz = TimeZone.getDefault().toZoneId();
-        var userTimeZone = ZoneId.of(user.getTimezone());
-        var dateTime = task.getCreated()
-                .atZone(defTz)
-                .withZoneSameInstant(userTimeZone)
-                .toLocalDateTime();
-        task.setCreated(dateTime);
     }
 }

@@ -3,6 +3,7 @@ package ru.job4j.todo.repository;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Repository;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 
 import java.util.Collection;
 import java.util.Map;
@@ -34,16 +35,20 @@ public class TaskRepository {
                 Task.class, Map.of("tId", id));
     }
 
-    public Collection<Task> findAll() {
+    public Collection<Task> findAllForUser(User user) {
         return crudRepository.query("SELECT DISTINCT t from Task t JOIN FETCH t.priority "
-                + "JOIN FETCH t.categories  ORDER BY t.id ASC", Task.class);
+                + "JOIN FETCH t.categories JOIN t.user u "
+                + "WHERE u.id = :userId  ORDER BY t.id ASC", Task.class,
+                Map.of("userId", user.getId())
+        );
     }
 
-    public Collection<Task> findAllByState(boolean state) {
+    public Collection<Task> findAllByStateForUser(boolean state, User user) {
         return crudRepository.query(
                 "SELECT DISTINCT t from Task as t JOIN FETCH t.priority "
-                        + "JOIN FETCH t.categories where t.done = :tState ORDER BY t.id ASC",
-                Task.class, Map.of("tState", state)
+                        + "JOIN FETCH t.categories JOIN t.user u "
+                        + "where t.done = :tState AND u.id = :userId ORDER BY t.id ASC",
+                Task.class, Map.of("tState", state, "userId", user.getId())
         );
     }
 

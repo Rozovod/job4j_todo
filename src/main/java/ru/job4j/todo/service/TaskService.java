@@ -3,6 +3,7 @@ package ru.job4j.todo.service;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import ru.job4j.todo.model.Task;
+import ru.job4j.todo.model.User;
 import ru.job4j.todo.repository.TaskRepository;
 
 import java.util.Collection;
@@ -29,12 +30,12 @@ public class TaskService {
         return taskRepository.findById(id);
     }
 
-    public Collection<Task> findAll() {
-        return taskRepository.findAll();
+    public Collection<Task> findAllForUser(User user) {
+        return taskRepository.findAllForUser(user);
     }
 
-    public Collection<Task> findAllByState(boolean state) {
-        return taskRepository.findAllByState(state);
+    public Collection<Task> findAllByStateForUser(boolean state, User user) {
+        return taskRepository.findAllByStateForUser(state, user);
     }
 
     public boolean updateStates(int id) {
